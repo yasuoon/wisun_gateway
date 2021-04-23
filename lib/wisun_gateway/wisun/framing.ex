@@ -92,7 +92,7 @@ defmodule WisunGateway.Wisun.Framing do
     {data1, rest} = Tools.bin_split_at(data, data_len)
 
     msg = %{unique: uniquecode, cmd: cmd, len: len,
-      chksum_head: chksum_head, chksum_data: chksum_data, 
+      chksum_head: chksum_head, chksum_data: chksum_data,
       data: data1, rest: rest
     }
 
@@ -107,7 +107,7 @@ defmodule WisunGateway.Wisun.Framing do
     head = msg.unique <> msg.cmd <> msg.len
 
     chk = verify_checksum(head, msg.chksum_head) and
-      verify_checksum(msg.data, msg.chksum_data) 
+      verify_checksum(msg.data, msg.chksum_data)
 
     case chk do
       false -> {:error, :checksum}

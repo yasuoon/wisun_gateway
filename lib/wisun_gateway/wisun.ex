@@ -35,7 +35,7 @@ defmodule WisunGateway.Wisun do
   @doc """
   MACアドレスをIPV6アドレスに変換
 
-  ## 引数 
+  ## 引数
     - mac : (integer) MACアドレス
 
   ## 戻り値
@@ -51,7 +51,7 @@ defmodule WisunGateway.Wisun do
   @doc """
   IPV6アドレスをMACアドレスに変換
 
-  ## 引数 
+  ## 引数
     - ipv6 : (binary) IPV6アドレス
 
   ##  戻り値
@@ -171,7 +171,7 @@ defmodule WisunGateway.Wisun do
   @doc """
   (共通) Ping送信
 
-  ## 引数 
+  ## 引数
     - ipv6 : (binary) IPv6アドレス
     - type : (0x00) 任意データ
              (0x01) 固定データパターン1 ("a" - "z")
@@ -255,7 +255,7 @@ defmodule WisunGateway.Wisun do
       :all -> <<>>
       _    -> Tools.int_to_bin(mac, 8)
     end
-       
+
     WisunPort.send_request(0x002E, data: data)
   end
 
@@ -273,7 +273,7 @@ defmodule WisunGateway.Wisun do
       :dev  -> Tools.int_to_bin(id[:panc_mac], 8)
       :dual -> Tools.int_to_bin(id[:pan_id], 2)
     end
-       
+
     WisunPort.send_request(0x000A, data: data)
   end
 

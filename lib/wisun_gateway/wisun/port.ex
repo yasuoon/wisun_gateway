@@ -75,10 +75,10 @@ defmodule WisunGateway.Wisun.Port do
 
     new_state = case {cmd in res, List.delete(res, cmd)} do
       {true, []} -> GenServer.reply(from, res_data)
-        %{state | reply_info: nil} 
+        %{state | reply_info: nil}
       {true, res} -> %{state | reply_info: {res, from}}
       {false, []} -> notify(cmd, data)
-        %{state | reply_info: nil} 
+        %{state | reply_info: nil}
       {false, _res} -> notify(cmd, data)
         state
     end

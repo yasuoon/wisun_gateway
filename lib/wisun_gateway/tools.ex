@@ -14,7 +14,7 @@ defmodule WisunGateway.Tools do
   (binary) 変換結果
 
   ## Examples
-  
+
       iex> WisunGateway.Tools.int_to_bin(0x01020304, 3)
       <<2, 3, 4>>
 
@@ -39,7 +39,7 @@ defmodule WisunGateway.Tools do
   (integer) 変換結果
 
   ## Examples
-  
+
       iex> WisunGateway.Tools.bin_to_int(<<1>>)
       1
 
