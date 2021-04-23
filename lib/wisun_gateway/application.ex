@@ -8,8 +8,8 @@ defmodule WisunGateway.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: WisunGateway.Worker.start_link(arg)
-      # {WisunGateway.Worker, arg}
+      WisunGateway.Wisun.Supervisor,
+      WisunGateway.Socket.Supervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

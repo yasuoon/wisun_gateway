@@ -3,16 +3,4 @@ defmodule WisunGateway do
   Documentation for `WisunGateway`.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> WisunGateway.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end
