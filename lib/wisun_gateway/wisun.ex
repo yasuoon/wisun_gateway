@@ -36,13 +36,12 @@ defmodule WisunGateway.Wisun do
   MACアドレスをIPV6アドレスに変換
 
   ## 引数
-    - mac : (integer) MACアドレス
+    - mac : (binary) MACアドレス
 
   ## 戻り値
   (binary) IPV6アドレス
   """
-  def mac_to_ipv6(mac) do
-      <<x, xs :: binary>> = Tools.int_to_bin(mac, 8)
+  def mac_to_ipv6(<<x, xs :: binary>>) do
       pre = <<0xFE, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00>>
       pre <> <<Bitwise.bxor(x, 0x02)>> <> xs
   end
@@ -55,11 +54,10 @@ defmodule WisunGateway.Wisun do
     - ipv6 : (binary) IPV6アドレス
 
   ##  戻り値
-  (integer) MACアドレス
+  (binary) MACアドレス
   """
   def mac_from_ipv6(_ipv6 = <<_pre :: binary-size(8), x, xs :: binary-size(7)>>) do
       <<Bitwise.bxor(x, 0x02)>> <> xs
-      |> Tools.bin_to_int()
   end
 
 
@@ -97,10 +95,7 @@ defmodule WisunGateway.Wisun do
   (共通) MACアドレス取得
   """
   def cmd_com_get_mac_addr do
-    case WisunPort.send_request(0x000E) do
-      {:ok, bin} -> {:ok, Tools.bin_to_int(bin)}
-      error -> error
-    end
+    WisunPort.send_request(0x000E)
   end
 
 

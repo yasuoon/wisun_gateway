@@ -1,4 +1,4 @@
-defmodule WisunGateway.Wisun.Supervisor do
+defmodule WisunGateway.Wisun.Supervisor2 do
   use Supervisor
 
   def start_link(_arg) do

@@ -8,7 +8,7 @@ defmodule WisunGateway.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      WisunGateway.Wisun.Supervisor,
+      WisunGateway.Wisun.Supervisor1,
       WisunGateway.Socket.Supervisor
     ]
 

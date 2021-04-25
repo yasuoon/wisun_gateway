@@ -77,9 +77,9 @@ defmodule WisunGateway.Wisun.Port do
       {true, []} -> GenServer.reply(from, res_data)
         %{state | reply_info: nil}
       {true, res} -> %{state | reply_info: {res, from}}
-      {false, []} -> notify(cmd, data)
+      {false, []} -> other_message(cmd, data)
         %{state | reply_info: nil}
-      {false, _res} -> notify(cmd, data)
+      {false, _res} -> other_message(cmd, data)
         state
     end
 
@@ -88,22 +88,24 @@ defmodule WisunGateway.Wisun.Port do
 
 
   @impl true
-  def handle_info({:circuits_uart, _dev, {@unique_not, cmd, data}}, state)
-  when Bitwise.band(cmd, 0x4000) != 0
-  do
-    notify(cmd, data)
+  def handle_info({:circuits_uart, _dev, {@unique_not, cmd, data}}, state) do
+    other_message(cmd, data)
     {:noreply, state}
   end
 
 
   @impl true
-  def handle_info({:circuits_uart, _dev, {@unique_res, cmd, data}}, state) do
-    Logger.error(inspect {"Unknown Message Received", cmd, data})
+  def handle_info(msg, state) do
+    Logger.error(inspect {"Unknown Received", msg})
     {:noreply, state}
   end
 
 
-  defp notify(cmd, data) do
+  defp other_message(cmd, data) when Bitwise.band(cmd, 0x4000) != 0 do
     WisunGateway.Wisun.Server.notify(cmd, data)
+  end
+
+  defp other_message(cmd, data) do
+    Logger.error(inspect {"Wi-Sun Bad Responce", cmd, data})
   end
 end
