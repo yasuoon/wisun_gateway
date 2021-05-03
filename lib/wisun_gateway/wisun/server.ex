@@ -7,6 +7,10 @@ defmodule WisunGateway.Wisun.Server do
   require Logger
 
 
+  def notice(cmd, data) do
+    GenServer.cast(__MODULE__, {:notice, cmd, data})
+  end
+
   @doc """
   通知メッセージを受信時にWisunGateWay.Wisun.Portから呼び出される
 
@@ -17,7 +21,7 @@ defmodule WisunGateway.Wisun.Server do
   ## 戻り値
   :ok
   """
-  def notify(0x6018, <<
+  def notice_proc(0x6018, <<
     ipv6 :: binary-size(16),
     _src_port :: binary-size(2), _dest_port :: binary-size(2),
     _panid :: binary-size(2), _cast, _crypt, rssi,
@@ -32,12 +36,15 @@ defmodule WisunGateway.Wisun.Server do
     mac = Wisun.mac_from_ipv6(ipv6)
     log = "[UDP message]  MAC: #{Base.encode16(mac)}, RSSI: #{rssi - 256}dBm"
     Logger.info(log)
+
+    args = [ipv6, 23456, 0x456, <<0xA>>]
+    Process.send_after(__MODULE__, {:delay_msg, args}, 500)
     :ok
   end
 
 
-  def notify(cmd, data) do
-    Logger.info(inspect {"Notify Message", cmd, data})
+  def notice_proc(cmd, data) do
+    Logger.info(inspect {"Notice Message", cmd, data})
     :ok
   end
 
@@ -79,7 +86,8 @@ defmodule WisunGateway.Wisun.Server do
     pass = opts[:pass]
 
     Enum.each(opts[:dev_macs], fn mac ->
-      Wisun.cmd_han_set_pana_param(mac, pass)
+      Tools.int_to_bin(mac, 8)
+      |> Wisun.cmd_han_set_pana_param(pass)
     end)
     Wisun.cmd_han_pana_start()
   end
@@ -103,5 +111,30 @@ defmodule WisunGateway.Wisun.Server do
     end)
 
     {:ok, opts}
+  end
+
+  @impl true
+  def handle_cast({:notice, cmd, data}, state) do
+    notice_proc(cmd, data)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:delay_msg, args = [ipv6 | _rest]}, state) do
+
+    apply(Wisun, :cmd_com_send_data, args)
+
+    mac = Wisun.mac_from_ipv6(ipv6)
+    Process.send_after(__MODULE__, {:del_device, mac}, 500)
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:del_device, mac}, state) do
+
+    Wisun.cmd_han_del_device_list(mac)
+
+    {:noreply, state}
   end
 end

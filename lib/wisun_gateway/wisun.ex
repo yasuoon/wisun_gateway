@@ -236,7 +236,7 @@ defmodule WisunGateway.Wisun do
   (HAN) PANA認証情報設定
   """
   def cmd_han_set_pana_param(mac \\ nil, password) do
-    mac_bs = if mac, do: Tools.int_to_bin(mac, 8), else: <<>>
+    mac_bs = if mac, do: mac, else: <<>>
     WisunPort.send_request(0x002C, data: [mac_bs, password])
   end
 
@@ -248,7 +248,7 @@ defmodule WisunGateway.Wisun do
     data = case mac do
       nil  -> <<>>
       :all -> <<>>
-      _    -> Tools.int_to_bin(mac, 8)
+      _    -> mac
     end
 
     WisunPort.send_request(0x002E, data: data)
@@ -306,8 +306,7 @@ defmodule WisunGateway.Wisun do
   (HAN) PANA再認証
   """
   def cmd_han_reauthorization(mac) do
-    data = Tools.int_to_bin(mac, 8)
-    WisunPort.send_request(0x002B, data: data)
+    WisunPort.send_request(0x002B, data: mac)
   end
 
 
@@ -331,8 +330,7 @@ defmodule WisunGateway.Wisun do
   (HAN) デバイスリスト削除
   """
   def cmd_han_del_device_list(mac) do
-    data = Tools.int_to_bin(mac, 8)
-    WisunPort.send_request(0x006A, data: data)
+    WisunPort.send_request(0x006A, data: mac)
   end
 
 
@@ -340,7 +338,6 @@ defmodule WisunGateway.Wisun do
   (HAN) HAN切断
   """
   def cmd_han_disconnect(mac) do
-    data = Tools.int_to_bin(mac, 8)
-    WisunPort.send_request(0x00D3, data: data, response: [0x20D3, 0x206A])
+    WisunPort.send_request(0x00D3, data: mac, response: [0x20D3, 0x206A])
   end
 end

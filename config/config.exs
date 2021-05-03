@@ -26,8 +26,4 @@ config :wisun_gateway, :operation,
   interval: 20 #(sec)
 
 
-config :wisun_gateway, Socket,
-  server: {{192, 168, 32, 83}, 10_000}
-
-
 import_config "sub.exs"

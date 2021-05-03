@@ -60,6 +60,9 @@ defmodule WisunGateway.Wisun.Port do
       Tools.int_to_bin(cmd, 2),
       data
     ]
+
+    Logger.debug(inspect {:send_data, send_data})
+
     UART.write(state.port, send_data)
     {:noreply, %{state | reply_info: {res, from}}}
   end
@@ -102,7 +105,7 @@ defmodule WisunGateway.Wisun.Port do
 
 
   defp other_message(cmd, data) when Bitwise.band(cmd, 0x4000) != 0 do
-    WisunGateway.Wisun.Server.notify(cmd, data)
+    WisunGateway.Wisun.Server.notice(cmd, data)
   end
 
   defp other_message(cmd, data) do
