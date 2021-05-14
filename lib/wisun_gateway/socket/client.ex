@@ -13,7 +13,7 @@ defmodule WisunGateway.Socket.Client do
 
   @impl true
   def init(opts) do
-    Process.send_after(self(), :connect, 10)
+    #Process.send_after(self(), :connect, 10)
 
     {:ok, %State{opts: opts}}
   end

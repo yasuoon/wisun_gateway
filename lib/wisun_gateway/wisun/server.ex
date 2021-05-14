@@ -6,6 +6,9 @@ defmodule WisunGateway.Wisun.Server do
 
   require Logger
 
+  @sensor_port 0x456
+  @send_port 0x778
+
 
   def notice(cmd, data) do
     GenServer.cast(__MODULE__, {:notice, cmd, data})
@@ -31,28 +34,54 @@ defmodule WisunGateway.Wisun.Server do
 
     _data_len = Tools.bin_to_int(len)
 
-    process_message(data)
+    command_from_sensor(ipv6, data)
 
     mac = Wisun.mac_from_ipv6(ipv6)
     log = "[UDP message]  MAC: #{Base.encode16(mac)}, RSSI: #{rssi - 256}dBm"
     Logger.info(log)
 
-    args = [ipv6, 23456, 0x456, <<0xA>>]
-    Process.send_after(__MODULE__, {:delay_msg, args}, 500)
     :ok
   end
-
 
   def notice_proc(cmd, data) do
-    Logger.info(inspect {"Notice Message", cmd, data})
+    cmd_s = Tools.int_to_string(cmd, 4, 16)
+    log = "Notice: #{cmd_s}, #{Base.encode16(data)}"
+    Logger.info(log)
     :ok
   end
 
-
-  def process_message(data) do
-    Logger.debug(inspect {"Sensor Message", data})
+  def command_from_sensor(ipv6, <<"01", "2", "\r\n">>) do
+    Logger.debug("CMD from Sensor : Request Mode")
+    d = <<"11", "1", "01", "1", "0", "0", "\r\n">>
+    args = [ipv6, @send_port, @sensor_port, d]
+    GenServer.cast(__MODULE__, {:send_message_to_sensor, args})
   end
 
+  def command_from_sensor(ipv6, <<"02", id_gateway :: binary-size(1), id_client :: binary-size(2), "\r\n">>) do
+    Logger.debug("CMD from Sensor : Resuest Sensor Type")
+    d = <<"12", id_gateway :: binary, id_client :: binary, "0", "1", "1", "000000", "\r\n">>
+    args = [ipv6, @send_port, @sensor_port, d]
+    GenServer.cast(__MODULE__, {:send_message_to_sensor, args})
+  end
+
+  def command_from_sensor(ipv6, <<"40",
+    id_gateway :: binary-size(1), id_client :: binary-size(2),
+    "01", temp :: binary-size(6), "02", humi :: binary-size(6),
+    "\r\n">>)
+  do
+    Logger.debug("CMD from Sensor : Temp[#{temp}], Humi[#{humi}]")
+    d = <<"50", id_gateway :: binary, id_client :: binary, "00", "\r\n">>
+    args = [ipv6, @send_port, @sensor_port, d]
+    GenServer.cast(__MODULE__, {:send_message_to_sensor, args})
+
+    mac = Wisun.mac_from_ipv6(ipv6)
+    Process.send_after(__MODULE__, {:del_device, mac}, 500)
+  end
+
+  def command_from_sensor(_ipv6, data) do
+    log = "Sensor: #{Base.encode16(data)}"
+    Logger.debug(log)
+  end
 
   @doc """
   PANAパラメータはWi-Sunデバイスのモードによって
@@ -116,6 +145,12 @@ defmodule WisunGateway.Wisun.Server do
   @impl true
   def handle_cast({:notice, cmd, data}, state) do
     notice_proc(cmd, data)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast({:send_message_to_sensor, args}, state) do
+    apply(Wisun, :cmd_com_send_data, args)
     {:noreply, state}
   end
 

@@ -58,11 +58,11 @@ defmodule WisunGateway.Tools do
 
   @doc """
   値を比較する
-  ### 引数
+  ## 引数
     - a : 値a
     - b : 値b
 
-  ### 戻り値
+  ## 戻り値
     - :lt : aはbより小さい (a < b の評価結果がtrue)
     - :eq : aとbは等しい (a == b の評価結果がtrue)
     - :gt : aはbより大きい (a > b の評価結果がtrue)
@@ -79,11 +79,11 @@ defmodule WisunGateway.Tools do
   @doc """
   binaryを任意の位置で分割する
 
-  ### 引数
+  ## 引数
     - bin : 対象のバイナリ
     - pos : 分割位置
 
-  ### 戻り値
+  ## 戻り値
   ({binary, binary}) バイナリのタプル
   """
   def bin_split_at(bin, pos) do
@@ -98,5 +98,21 @@ defmodule WisunGateway.Tools do
     a = binary_part(bin, 0, len1)
     b = binary_part(bin, len1, len2)
     {a, b}
+  end
+
+  @doc """
+  数値を文字列に変換
+
+  ## 引数
+    - n : 変換する数値
+    - digit : 桁数
+    - base : base
+
+  ## 戻り値
+  変換した文字列
+  """
+  def int_to_string(n, digit, base \\ 10) do
+    Integer.to_string(n, base)
+    |> String.pad_leading(digit, "0")
   end
 end

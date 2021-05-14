@@ -61,7 +61,9 @@ defmodule WisunGateway.Wisun.Port do
       data
     ]
 
-    Logger.debug(inspect {:send_data, send_data})
+    log_data = List.flatten(send_data) |> Enum.map(&Base.encode16/1)
+
+    Logger.debug("send: #{inspect log_data}")
 
     UART.write(state.port, send_data)
     {:noreply, %{state | reply_info: {res, from}}}
