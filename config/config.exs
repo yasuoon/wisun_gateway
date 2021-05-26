@@ -9,7 +9,7 @@ config :wisun_gateway, Wisun,
 
 
 config :wisun_gateway, UART,
-  name: "ttymxc2",
+  name: "ttymxc6",
   opts: [
     speed: 115200,
     data_bits: 8,  # データ長
