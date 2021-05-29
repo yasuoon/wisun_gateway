@@ -78,7 +78,7 @@ defmodule WisunGateway.Wisun.Server do
 
   def command_from_sensor(ipv6, <<0x04, id_gateway, id_client>>) do
     Logger.info("Command from Sensor: Request Interval")
-    d = <<0x14, id_gateway, id_client, @interval>>
+    d = <<0x14, id_gateway, id_client, @interval :: integer-24>>
     args = [ipv6, @send_port, @sensor_port, d]
     {:request_interval, args}
   end
